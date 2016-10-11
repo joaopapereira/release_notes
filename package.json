@@ -19,8 +19,9 @@
     "deploy": "better-npm-run deploy",
     "deploy:dev": "better-npm-run deploy:dev",
     "deploy:prod": "better-npm-run deploy:prod",
+    "deploy:heroku": "better-npm-run deploy:heroku",
     "codecov": "cat coverage/*/lcov.info | codecov",
-    "heroku-postbuild": "deploy:heroku"
+    "heroku-postbuild": "better-npm-run deploy:heroku"
   },
   "betterScripts": {
     "compile": {
