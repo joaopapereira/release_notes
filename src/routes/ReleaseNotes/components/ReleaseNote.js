@@ -24,17 +24,14 @@ export const ReleaseNote = (props: Props) => {
   if (props.rn !== undefined) {
     props.rn.prs.forEach(pr => {
       allPRs.push(
-        <ul key={props.rn.id + pr.id}>
-          <li key={props.rn.id + 1 + pr.id}>
-            {pr.issue ? pr.issue.title : ''} <a href={pr.issue ? pr.issue.url : '#'}>{pr.issue ? pr.issue.number : ''}</a> by ({pr.user.login})
-          </li>
-        </ul>
+        <div className='feed-element' key={props.rn.id + pr.id}>
+          {pr.issue ? pr.issue.title : ''} <a href={pr.issue ? pr.issue.html_url : '#'}>{pr.issue ? pr.issue.number : ''}</a> by ({pr.user.login})
+        </div>
       )
     })
   };
   return (
-    <div>
-      <div>
+      <div className='col-md-12'>
         <div className='row'>
           {(props.errors !== undefined) ? <div>
             <p>Something wrong happened while {props.errors.action_done}</p>
@@ -43,31 +40,62 @@ export const ReleaseNote = (props: Props) => {
             : null
           }
         </div>
-        <div className='row'>
-          {(props.rn && props.errors === undefined) ? <div>
-            <h5>
-              Repository: {props.rn.full_name}
-            </h5>
-            <div>
-              Release note since {props.selectedDate.format("MMMM Do YYYY")}:<br />
-              {allPRs}
+
+        <div className="col-md-6 pull-right">
+          <div className='row'>
+            {(props.rn && props.errors === undefined) ? <div className='white-bg'>
+              <div className='rn-box-title'>
+                <div className="col-md-2">
+                    Repository: {props.rn.full_name}
+                </div>
+                <div className="col-md-4 pull-right">
+                  {props.selectedDate.format("MMMM Do YYYY")}<br />
+                </div>
+              </div>
+              <div className='rn-box-content'>
+                <div className='feed-activity-list'>
+                  {allPRs}
+                </div>
+              </div>
             </div>
+              : null
+            }
           </div>
-            : null
-          }
         </div>
-        <form onSubmit={props.onSubmitForm}>
-          <input type="text" name="repo_name" value={props.repoName} onChange={props.onChangeRepoName}/>
-          <DatePicker selected={props.selectedDate} onChange={props.onChangeDatePicker}/>
-        </form>
-        <button className='btn btn-default' onClick={props.fetchRepository}>
-          Fetch a Release Note
-        </button>
-        {' '}
-        <button className='btn btn-default' onClick={props.saveCurrentRN}>
-          Save
-        </button>
-      </div>
+        <div className="col-md-6 pull-left">
+          <form onSubmit={props.onSubmitForm}>
+            <div className='row white-bg'>
+              <div className='rn-box-title'>
+                Parameters for release note
+              </div>
+
+              <div className='rn-box-content'>
+                <div className='col-md-8'>
+                  Repository name(Ex: gitusername/repository_name):
+                </div>
+                <div className='col-md-4'>
+                  <input type="text" name="repo_name" value={props.repoName} onChange={props.onChangeRepoName}/>
+                </div>
+                <div className='row'>
+                  <div className='col-md-8'>
+                    Release initial date
+                  </div>
+                  <div className='col-md-4'>
+                    <DatePicker selected={props.selectedDate} onChange={props.onChangeDatePicker}/>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </form>
+          <button className='btn btn-default' onClick={props.fetchRepository}>
+            Fetch a Release Note
+          </button>
+          {' '}
+          <button className='btn btn-default' onClick={props.saveCurrentRN}>
+            Save
+          </button>
+        </div>
+      <div>
       {props.saved.length
         ? <div className={classes.savedWisdoms}>
           <h3>
@@ -84,6 +112,7 @@ export const ReleaseNote = (props: Props) => {
         : null
       }
     </div>
+  </div>
   )
 }
 
