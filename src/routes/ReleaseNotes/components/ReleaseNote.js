@@ -24,7 +24,7 @@ export const ReleaseNote = (props: Props) => {
   if (props.rn !== undefined) {
     props.rn.prs.forEach(pr => {
       allPRs.push(
-        <div className='feed-element' key={props.rn.id + pr.id}>
+        <div className='pr-merged-element' key={props.rn.id + pr.id}>
           {pr.issue ? pr.issue.title : ''} <a href={pr.issue ? pr.issue.html_url : '#'}>{pr.issue ? pr.issue.number : ''}</a> by ({pr.user.login})
         </div>
       )
@@ -53,7 +53,7 @@ export const ReleaseNote = (props: Props) => {
                 </div>
               </div>
               <div className='rn-box-content'>
-                <div className='feed-activity-list'>
+                <div className='pr-list'>
                   {allPRs}
                 </div>
               </div>

@@ -47,18 +47,18 @@
     font-size: 12px;
 }
 
-.feed-element:first-child {
+.pr-merged-element:first-child {
     margin-top: 0;
 }
-.feed-activity-list .feed-element {
+.pr-list .pr-merged-element {
     border-bottom: 1px solid #e7eaec;
 }
-.feed-element, .media-body {
+.pr-merged-element, .media-body {
     overflow: hidden;
 }
-.feed-element, .feed-element .media {
+.pr-merged-element, .pr-merged-element .media {
     margin-top: 15px;
 }
-.feed-element {
+.pr-merged-element {
     padding-bottom: 15px;
 }
