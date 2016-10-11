@@ -33,3 +33,7 @@ export type ReleaseNoteStateObject = {
   rns: Array<ReleaseNoteObject>,
   filter: Object
 }
+export type ErrorObject = {
+  action_done: string,
+  error_message: string
+}

@@ -2,13 +2,16 @@
 import React from 'react'
 import classes from './ReleaseNotes.scss'
 
-import type { ReleaseNoteObject } from '../interfaces/releaseNote'
+import type { ReleaseNoteObject, ErrorObject } from '../interfaces/releaseNote'
 
 type Props = {
   rn: ?ReleaseNoteObject,
   saved: Array<ReleaseNoteObject>,
+  errors: ErrorObject,
   fetchRepository: Function,
-  saveCurrentRN: Function
+  saveCurrentRN: Function,
+  onChangeRepoName: Function,
+  onSubmitForm: Function
 }
 
 export const ReleaseNote = (props: Props) => {
@@ -28,7 +31,15 @@ export const ReleaseNote = (props: Props) => {
     <div>
       <div>
         <div className='row'>
-          {props.rn ? <div>
+          {(props.errors !== undefined) ? <div>
+            <p>Something wrong happened while {props.errors.action_done}</p>
+            <p>{props.errors.error_message}</p>
+            </div>
+            : null
+          }
+        </div>
+        <div className='row'>
+          {(props.rn && props.rn.error.length == 0) ? <div>
             <h5>
               Repository: {props.rn.full_name}
             </h5>
@@ -40,8 +51,8 @@ export const ReleaseNote = (props: Props) => {
             : null
           }
         </div>
-        <form>
-          <input type="text" name="repo_name" onChange={this.handleChange}/>
+        <form onSubmit={props.onSubmitForm}>
+          <input type="text" name="repo_name" onChange={props.onChangeRepoName}/>
         </form>
         <button className='btn btn-default' onClick={props.fetchRepository}>
           Fetch a Release Note
@@ -72,12 +83,13 @@ export const ReleaseNote = (props: Props) => {
 
 ReleaseNote.propTypes = {
   rn: React.PropTypes.object,
+  errors: React.PropTypes.object,
   saved: React.PropTypes.array.isRequired,
   fetchRepository: React.PropTypes.func.isRequired,
-  saveCurrentRN: React.PropTypes.func.isRequired
+  saveCurrentRN: React.PropTypes.func.isRequired,
+  onChangeRepoName: React.PropTypes.func.isRequired,
+  onSubmitForm: React.PropTypes.func.isRequired
 }
-ReleaseNote.prototype.handleChange = function() {
-  
-}
+
 
 export default ReleaseNote

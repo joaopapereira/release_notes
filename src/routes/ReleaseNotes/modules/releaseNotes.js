@@ -14,14 +14,40 @@ export const REQUEST_COMMITS = 'REQUEST_COMMITS'
 export const RECIEVE_COMMITS = 'RECIEVE_COMMITS'
 export const REQUEST_ISSUES = 'REQUEST_ISSUES'
 export const RECEIVE_ISSUES = 'RECEIVE_ISSUES'
+export const CHANGE_REPO_NAME = 'CHANGE_REPO_NAME'
+export const ON_SUBMIT_FORM = 'ON_SUBMIT_FORM'
+export const FETCH_ERROR = 'FETCH_ERROR'
 
 // ------------------------------------
 // Actions
 // ------------------------------------
 
+export const onSubmitForm = (evt): Function => {
+  evt.preventDefault()
+  return fetchRepository()
+}
+
+export function onChangeRepoName (evt): Action {
+  return {
+    type: CHANGE_REPO_NAME,
+    payload: {
+      value: evt.target.value
+    }
+  }
+}
+
 export function requestRN (): Action {
   return {
     type: REQUEST_RN
+  }
+}
+export function fetchError (action_done, error_message): Action {
+  return {
+    type: FETCH_ERROR,
+    payload: {
+      action_done,
+      error_message
+    }
   }
 }
 
@@ -91,13 +117,17 @@ function getHeaders () {
 }
 
 export const fetchRepository = (): Function => {
-  return (dispatch: Function): Promise => {
+  return (dispatch: Function, getState: Function): Promise => {
     dispatch(requestRN())
+    var state = getState()
 
-    return fetch('https://api.github.com/repos/AgileVentures/MetPlus_PETS',
+    return fetch('https://api.github.com/repos/' + state.rn.repo_name,
                   { headers: getHeaders() })
       .then(response => response.json())
       .then(json => {
+        if (json.message !== undefined) {
+          return dispatch(fetchError(" while retrieving the repository", json.message))
+        }
         dispatch(recieveRN(json))
         return dispatch(fetchCommits(json.pulls_url))
       }
@@ -115,6 +145,9 @@ export const fetchCommits = (url): Function => {
     return fetch(composedUrl, { headers: getHeaders() })
       .then(response => response.json())
       .then(json => {
+        if (json.message !== undefined) {
+          return dispatch(fetchError(" while retrieving the PRs", json.message))
+        }
         var result = dispatch(recieveCommits(_filter, json))
         var allIssues = []
         for (var i = 0; i < result.payload.prs.length; i++) {
@@ -139,8 +172,12 @@ export const fetchIssue = (pr, repository, id): Function => {
     var composedUrl = 'https://api.github.com/repos/' + repository + '/issues/' + id
     return fetch(composedUrl, { headers: getHeaders() })
       .then(response => response.json())
-      .then(json =>
-        dispatch(receiveIssue(pr, json))
+      .then(json =>{
+        if (json.message !== undefined) {
+          return dispatch(fetchError(" while retrieving the issue: " + repository + "#" + id, json.message))
+        }
+        return dispatch(receiveIssue(pr, json))
+      }
       )
   }
 }
@@ -153,8 +190,12 @@ export const actions = {
 }
 
 const RN_ACTION_HANDLERS = {
+  [FETCH_ERROR]:  (state: ReleaseNoteStateObject, action: {payload: {action_done: string, error_message: string}}): ReleaseNoteStateObject => {
+
+    return ({ ...state, fetching: false, errors: [{action_done: action.payload.action_done, error_message: action.payload.error_message}] })
+  },
   [REQUEST_RN]: (state: ReleaseNoteStateObject): ReleaseNoteStateObject => {
-    return ({ ...state, fetching: true })
+    return ({ ...state, fetching: true, errors: [] })
   },
   [RECIEVE_RN]: (state: ReleaseNoteStateObject, action: {payload: ReleaseNoteObject}): ReleaseNoteStateObject => {
     var releaseNote = {
@@ -187,6 +228,9 @@ const RN_ACTION_HANDLERS = {
   },
   [REQUEST_ISSUES]: (state: ReleaseNoteStateObject): ReleaseNoteStateObject => {
     return ({ ...state, fetching: true, missingIssues: state.missingIssues + 1 })
+  },
+  [CHANGE_REPO_NAME]: (state: ReleaseNoteStateObject, action: {payload: {value: string}}): ReleaseNoteStateObject => {
+    return ({ ...state, repo_name: action.payload.value})
   },
   [RECEIVE_ISSUES]: (state: ReleaseNoteStateObject, action: {payload: {pr: PRObject, issue: IssueObject}}):
     ReleaseNoteStateObject => {
@@ -247,7 +291,9 @@ const initialState: ReleaseNoteStateObject =
     rns: [],
     saved: [],
     filter: { state: 'closed', since: '2016-09-23' },
-    missingIssues: 0 }
+    missingIssues: 0,
+    repo_name: '',
+    errors: [] }
 export default function rnReducer (state: ReleaseNoteStateObject = initialState,
                                    action: Action): ReleaseNoteStateObject {
   const handler = RN_ACTION_HANDLERS[action.type]
