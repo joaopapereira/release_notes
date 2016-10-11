@@ -290,7 +290,7 @@ const initialState: ReleaseNoteStateObject =
     current: null,
     rns: [],
     saved: [],
-    filter: { state: 'closed', since: '2016-09-23' },
+    filter: { state: 'closed', since: '2016-10-08' },
     missingIssues: 0,
     repo_name: '',
     errors: [] }

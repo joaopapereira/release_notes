@@ -39,7 +39,7 @@ export const ReleaseNote = (props: Props) => {
           }
         </div>
         <div className='row'>
-          {(props.rn && props.rn.error.length == 0) ? <div>
+          {(props.rn && props.errors === undefined) ? <div>
             <h5>
               Repository: {props.rn.full_name}
             </h5>
