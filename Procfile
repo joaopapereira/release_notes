@@ -1,1 +1,1 @@
-web: npm deploy:prod && node bin/server
+web: node bin/server
