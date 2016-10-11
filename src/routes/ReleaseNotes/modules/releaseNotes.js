@@ -1,5 +1,5 @@
 /* @flow */
-
+import moment from 'moment'
 import type { IssueObject,
               ReleaseNoteObject, ReleaseNoteStateObject,
               PRObject } from '../interfaces/releaseNote.js'
@@ -17,6 +17,7 @@ export const RECEIVE_ISSUES = 'RECEIVE_ISSUES'
 export const CHANGE_REPO_NAME = 'CHANGE_REPO_NAME'
 export const ON_SUBMIT_FORM = 'ON_SUBMIT_FORM'
 export const FETCH_ERROR = 'FETCH_ERROR'
+export const CHANGE_DATE = 'CHANGE_DATE'
 
 // ------------------------------------
 // Actions
@@ -32,6 +33,15 @@ export function onChangeRepoName (evt): Action {
     type: CHANGE_REPO_NAME,
     payload: {
       value: evt.target.value
+    }
+  }
+}
+
+export function onChangeDatePicker(date): Action {
+  return {
+    type: CHANGE_DATE,
+    payload: {
+      date
     }
   }
 }
@@ -121,7 +131,7 @@ export const fetchRepository = (): Function => {
     dispatch(requestRN())
     var state = getState()
 
-    return fetch('https://api.github.com/repos/' + state.rn.repo_name,
+    return fetch('https://api.github.com/repos/' + state.rn.repoName,
                   { headers: getHeaders() })
       .then(response => response.json())
       .then(json => {
@@ -190,6 +200,9 @@ export const actions = {
 }
 
 const RN_ACTION_HANDLERS = {
+  [CHANGE_DATE]:  (state: ReleaseNoteStateObject, action: {payload: {date: string}}): ReleaseNoteStateObject => {
+    return ({ ...state, filter: { ...state.filter, since: action.payload.date}})
+  },
   [FETCH_ERROR]:  (state: ReleaseNoteStateObject, action: {payload: {action_done: string, error_message: string}}): ReleaseNoteStateObject => {
 
     return ({ ...state, fetching: false, errors: [{action_done: action.payload.action_done, error_message: action.payload.error_message}] })
@@ -230,7 +243,7 @@ const RN_ACTION_HANDLERS = {
     return ({ ...state, fetching: true, missingIssues: state.missingIssues + 1 })
   },
   [CHANGE_REPO_NAME]: (state: ReleaseNoteStateObject, action: {payload: {value: string}}): ReleaseNoteStateObject => {
-    return ({ ...state, repo_name: action.payload.value})
+    return ({ ...state, repoName: action.payload.value})
   },
   [RECEIVE_ISSUES]: (state: ReleaseNoteStateObject, action: {payload: {pr: PRObject, issue: IssueObject}}):
     ReleaseNoteStateObject => {
@@ -290,10 +303,11 @@ const initialState: ReleaseNoteStateObject =
     current: null,
     rns: [],
     saved: [],
-    filter: { state: 'closed', since: '2016-10-08' },
+    filter: { state: 'closed', since:  moment() },
     missingIssues: 0,
-    repo_name: '',
-    errors: [] }
+    repoName: '',
+    errors: [],
+    date: moment() }
 export default function rnReducer (state: ReleaseNoteStateObject = initialState,
                                    action: Action): ReleaseNoteStateObject {
   const handler = RN_ACTION_HANDLERS[action.type]

@@ -1,6 +1,8 @@
 /* @flow */
 import React from 'react'
 import classes from './ReleaseNotes.scss'
+import DatePicker from 'react-datepicker'
+require('react-datepicker/dist/react-datepicker.css')
 
 import type { ReleaseNoteObject, ErrorObject } from '../interfaces/releaseNote'
 
@@ -8,10 +10,13 @@ type Props = {
   rn: ?ReleaseNoteObject,
   saved: Array<ReleaseNoteObject>,
   errors: ErrorObject,
+  selectedDate: string,
+  repoName: string,
   fetchRepository: Function,
   saveCurrentRN: Function,
   onChangeRepoName: Function,
-  onSubmitForm: Function
+  onSubmitForm: Function,
+  onChangeDatePicker: Function
 }
 
 export const ReleaseNote = (props: Props) => {
@@ -44,7 +49,7 @@ export const ReleaseNote = (props: Props) => {
               Repository: {props.rn.full_name}
             </h5>
             <div>
-              Release note:<br />
+              Release note since {props.selectedDate.format("MMMM Do YYYY")}:<br />
               {allPRs}
             </div>
           </div>
@@ -52,7 +57,8 @@ export const ReleaseNote = (props: Props) => {
           }
         </div>
         <form onSubmit={props.onSubmitForm}>
-          <input type="text" name="repo_name" onChange={props.onChangeRepoName}/>
+          <input type="text" name="repo_name" value={props.repoName} onChange={props.onChangeRepoName}/>
+          <DatePicker selected={props.selectedDate} onChange={props.onChangeDatePicker}/>
         </form>
         <button className='btn btn-default' onClick={props.fetchRepository}>
           Fetch a Release Note
@@ -84,11 +90,14 @@ export const ReleaseNote = (props: Props) => {
 ReleaseNote.propTypes = {
   rn: React.PropTypes.object,
   errors: React.PropTypes.object,
+  selectedDate: React.PropTypes.object,
+  repoName: React.PropTypes.object,
   saved: React.PropTypes.array.isRequired,
   fetchRepository: React.PropTypes.func.isRequired,
   saveCurrentRN: React.PropTypes.func.isRequired,
   onChangeRepoName: React.PropTypes.func.isRequired,
-  onSubmitForm: React.PropTypes.func.isRequired
+  onSubmitForm: React.PropTypes.func.isRequired,
+  onChangeDatePicker: React.PropTypes.func.isRequired
 }
 
 
