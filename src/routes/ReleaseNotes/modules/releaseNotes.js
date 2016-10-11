@@ -8,10 +8,10 @@ import Action from 'redux'
 // Constants
 // ------------------------------------
 export const REQUEST_RN = 'REQUEST_RELEASE_NOTE'
-export const RECIEVE_RN = 'RECIEVE_RELEASE_NOTE'
+export const RECEIVE_RN = 'RECIEVE_RELEASE_NOTE'
 export const SAVE_CURRENT_RN = 'SAVE_CURRENT_RELEASE_NOTE'
 export const REQUEST_COMMITS = 'REQUEST_COMMITS'
-export const RECIEVE_COMMITS = 'RECIEVE_COMMITS'
+export const RECEIVE_COMMITS = 'RECEIVE_COMMITS'
 export const REQUEST_ISSUES = 'REQUEST_ISSUES'
 export const RECEIVE_ISSUES = 'RECEIVE_ISSUES'
 export const CHANGE_REPO_NAME = 'CHANGE_REPO_NAME'
@@ -37,7 +37,7 @@ export function onChangeRepoName (evt): Action {
   }
 }
 
-export function onChangeDatePicker(date): Action {
+export function onChangeDatePicker (date): Action {
   return {
     type: CHANGE_DATE,
     payload: {
@@ -51,12 +51,12 @@ export function requestRN (): Action {
     type: REQUEST_RN
   }
 }
-export function fetchError (action_done, error_message): Action {
+export function fetchError (actionDone, errorMessage): Action {
   return {
     type: FETCH_ERROR,
     payload: {
-      action_done,
-      error_message
+      actionDone,
+      errorMessage
     }
   }
 }
@@ -64,7 +64,7 @@ export function fetchError (action_done, error_message): Action {
 let availableId = 0
 export function recieveRN (value): Action {
   return {
-    type: RECIEVE_RN,
+    type: RECEIVE_RN,
     payload: {
       value,
       id: availableId++
@@ -93,7 +93,7 @@ export function recieveCommits (_filter: Object, value: Array<PRObject>): Action
     prs.push(value[i])
   }
   return {
-    type: RECIEVE_COMMITS,
+    type: RECEIVE_COMMITS,
     payload: {
       prs
     }
@@ -136,7 +136,7 @@ export const fetchRepository = (): Function => {
       .then(response => response.json())
       .then(json => {
         if (json.message !== undefined) {
-          return dispatch(fetchError(" while retrieving the repository", json.message))
+          return dispatch(fetchError(' while retrieving the repository', json.message))
         }
         dispatch(recieveRN(json))
         return dispatch(fetchCommits(json.pulls_url))
@@ -156,7 +156,7 @@ export const fetchCommits = (url): Function => {
       .then(response => response.json())
       .then(json => {
         if (json.message !== undefined) {
-          return dispatch(fetchError(" while retrieving the PRs", json.message))
+          return dispatch(fetchError(' while retrieving the PRs', json.message))
         }
         var result = dispatch(recieveCommits(_filter, json))
         var allIssues = []
@@ -182,9 +182,9 @@ export const fetchIssue = (pr, repository, id): Function => {
     var composedUrl = 'https://api.github.com/repos/' + repository + '/issues/' + id
     return fetch(composedUrl, { headers: getHeaders() })
       .then(response => response.json())
-      .then(json =>{
+      .then(json => {
         if (json.message !== undefined) {
-          return dispatch(fetchError(" while retrieving the issue: " + repository + "#" + id, json.message))
+          return dispatch(fetchError(' while retrieving the issue: ' + repository + '#' + id, json.message))
         }
         return dispatch(receiveIssue(pr, json))
       }
@@ -201,16 +201,18 @@ export const actions = {
 
 const RN_ACTION_HANDLERS = {
   [CHANGE_DATE]:  (state: ReleaseNoteStateObject, action: {payload: {date: string}}): ReleaseNoteStateObject => {
-    return ({ ...state, filter: { ...state.filter, since: action.payload.date}})
+    return ({ ...state, filter: { ...state.filter, since: action.payload.date } })
   },
-  [FETCH_ERROR]:  (state: ReleaseNoteStateObject, action: {payload: {action_done: string, error_message: string}}): ReleaseNoteStateObject => {
-
-    return ({ ...state, fetching: false, errors: [{action_done: action.payload.action_done, error_message: action.payload.error_message}] })
+  [FETCH_ERROR]:  (state: ReleaseNoteStateObject, action: {payload: {actionDone: string, errorMessage: string}}):
+    ReleaseNoteStateObject => {
+    return ({ ...state,
+              fetching: false,
+              errors: [{ actionDone: action.payload.actionDone, errorMessage: action.payload.errorMessage }] })
   },
   [REQUEST_RN]: (state: ReleaseNoteStateObject): ReleaseNoteStateObject => {
     return ({ ...state, fetching: true, errors: [] })
   },
-  [RECIEVE_RN]: (state: ReleaseNoteStateObject, action: {payload: ReleaseNoteObject}): ReleaseNoteStateObject => {
+  [RECEIVE_RN]: (state: ReleaseNoteStateObject, action: {payload: ReleaseNoteObject}): ReleaseNoteStateObject => {
     var releaseNote = {
       ...action.payload.value,
       prs: []
@@ -224,7 +226,7 @@ const RN_ACTION_HANDLERS = {
   [REQUEST_COMMITS]: (state: ReleaseNoteStateObject): ReleaseNoteStateObject => {
     return ({ ...state, fetching: true })
   },
-  [RECIEVE_COMMITS]: (state: ReleaseNoteStateObject, action: {payload: Array<PRObject>}): ReleaseNoteStateObject => {
+  [RECEIVE_COMMITS]: (state: ReleaseNoteStateObject, action: {payload: Array<PRObject>}): ReleaseNoteStateObject => {
     var currentId = 0
     for (currentId = 0; currentId < state.rns.length; currentId++) {
       if (state.rns[currentId].id === state.current) {
@@ -243,7 +245,7 @@ const RN_ACTION_HANDLERS = {
     return ({ ...state, fetching: true, missingIssues: state.missingIssues + 1 })
   },
   [CHANGE_REPO_NAME]: (state: ReleaseNoteStateObject, action: {payload: {value: string}}): ReleaseNoteStateObject => {
-    return ({ ...state, repoName: action.payload.value})
+    return ({ ...state, repoName: action.payload.value })
   },
   [RECEIVE_ISSUES]: (state: ReleaseNoteStateObject, action: {payload: {pr: PRObject, issue: IssueObject}}):
     ReleaseNoteStateObject => {

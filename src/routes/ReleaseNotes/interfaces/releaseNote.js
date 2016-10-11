@@ -34,6 +34,6 @@ export type ReleaseNoteStateObject = {
   filter: Object
 }
 export type ErrorObject = {
-  action_done: string,
-  error_message: string
+  actionDone: string,
+  errorMessage: string
 }

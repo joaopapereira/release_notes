@@ -1,6 +1,5 @@
 /* @flow */
 import React from 'react'
-import classes from './ReleaseNotes.scss'
 import DatePicker from 'react-datepicker'
 require('react-datepicker/dist/react-datepicker.css')
 
@@ -25,94 +24,74 @@ export const ReleaseNote = (props: Props) => {
     props.rn.prs.forEach(pr => {
       allPRs.push(
         <div className='pr-merged-element' key={props.rn.id + pr.id}>
-          {pr.issue ? pr.issue.title : ''} <a href={pr.issue ? pr.issue.html_url : '#'}>{pr.issue ? pr.issue.number : ''}</a> by ({pr.user.login})
+          {pr.issue ? pr.issue.title : ''}
+          <a href={pr.issue ? pr.issue.html_url : '#'}>{pr.issue ? pr.issue.number : ''}</a>
+          by ({pr.user.login})
         </div>
       )
     })
   };
   return (
-      <div className='col-md-12'>
+    <div className='col-md-12'>
+      <div className='row'>
+        {(props.errors !== undefined) ? <div>
+          <p>Something wrong happened while {props.errors.actionDone}</p>
+          <p>{props.errors.errorMessage}</p>
+        </div>
+        : null
+        }
+      </div>
+
+      <div className='col-md-6 pull-right'>
         <div className='row'>
-          {(props.errors !== undefined) ? <div>
-            <p>Something wrong happened while {props.errors.action_done}</p>
-            <p>{props.errors.error_message}</p>
+          {(props.rn && props.errors === undefined) ? <div className='white-bg'>
+            <div className='rn-box-title'>
+              <div className='col-md-2'>
+                Repository: {props.rn.full_name}
+              </div>
+              <div className='col-md-4 pull-right'>
+                {props.selectedDate.format('MMMM Do YYYY')}<br />
+              </div>
             </div>
+            <div className='rn-box-content'>
+              <div className='pr-list'>
+                {allPRs}
+              </div>
+            </div>
+          </div>
             : null
           }
         </div>
-
-        <div className="col-md-6 pull-right">
-          <div className='row'>
-            {(props.rn && props.errors === undefined) ? <div className='white-bg'>
-              <div className='rn-box-title'>
-                <div className="col-md-2">
-                    Repository: {props.rn.full_name}
-                </div>
-                <div className="col-md-4 pull-right">
-                  {props.selectedDate.format("MMMM Do YYYY")}<br />
-                </div>
-              </div>
-              <div className='rn-box-content'>
-                <div className='pr-list'>
-                  {allPRs}
-                </div>
-              </div>
+      </div>
+      <div className='col-md-6 pull-left'>
+        <form onSubmit={props.onSubmitForm}>
+          <div className='row white-bg'>
+            <div className='rn-box-title'>
+              Parameters for release note
             </div>
-              : null
-            }
-          </div>
-        </div>
-        <div className="col-md-6 pull-left">
-          <form onSubmit={props.onSubmitForm}>
-            <div className='row white-bg'>
-              <div className='rn-box-title'>
-                Parameters for release note
+            <div className='rn-box-content'>
+              <div className='col-md-8'>
+                Repository name(Ex: gitusername/repository_name):
               </div>
-
-              <div className='rn-box-content'>
+              <div className='col-md-4'>
+                <input type='text' name='repo_name' value={props.repoName} onChange={props.onChangeRepoName} />
+              </div>
+              <div className='row'>
                 <div className='col-md-8'>
-                  Repository name(Ex: gitusername/repository_name):
+                  Release initial date
                 </div>
                 <div className='col-md-4'>
-                  <input type="text" name="repo_name" value={props.repoName} onChange={props.onChangeRepoName}/>
-                </div>
-                <div className='row'>
-                  <div className='col-md-8'>
-                    Release initial date
-                  </div>
-                  <div className='col-md-4'>
-                    <DatePicker selected={props.selectedDate} onChange={props.onChangeDatePicker}/>
-                  </div>
+                  <DatePicker selected={props.selectedDate} onChange={props.onChangeDatePicker} />
                 </div>
               </div>
             </div>
-          </form>
-          <button className='btn btn-default' onClick={props.fetchRepository}>
-            Fetch a Release Note
-          </button>
-          {' '}
-          <button className='btn btn-default' onClick={props.saveCurrentRN}>
-            Save
-          </button>
-        </div>
-      <div>
-      {props.saved.length
-        ? <div className={classes.savedWisdoms}>
-          <h3>
-            Saved wisdoms
-          </h3>
-          <ul>
-            {props.saved.map(rn =>
-              <li key={rn.id}>
-                {rn.value}
-              </li>
-            )}
-          </ul>
-        </div>
-        : null
-      }
+          </div>
+        </form>
+        <button className='btn btn-default' onClick={props.fetchRepository}>
+          Fetch a Release Note
+        </button>
+      </div>
     </div>
-  </div>
   )
 }
 
@@ -128,6 +107,5 @@ ReleaseNote.propTypes = {
   onSubmitForm: React.PropTypes.func.isRequired,
   onChangeDatePicker: React.PropTypes.func.isRequired
 }
-
 
 export default ReleaseNote
