@@ -1,5 +1,6 @@
 /* @flow */
 import React from 'react'
+import './ReleaseNotes.scss'
 import DatePicker from 'react-datepicker'
 require('react-datepicker/dist/react-datepicker.css')
 
@@ -25,7 +26,7 @@ export const ReleaseNote = (props: Props) => {
       allPRs.push(
         <div className='pr-merged-element' key={props.rn.id + pr.id}>
           {pr.issue ? pr.issue.title : ''}
-          <a href={pr.issue ? pr.issue.html_url : '#'}>{pr.issue ? pr.issue.number : ''}</a>
+          <a href={pr.issue ? pr.issue.html_url : '#'}> #{pr.issue ? pr.issue.number : ''} </a>
           by ({pr.user.login})
         </div>
       )
